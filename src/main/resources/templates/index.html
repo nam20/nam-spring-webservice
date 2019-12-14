@@ -5,14 +5,19 @@
     <meta name="viewport" content="width=device-width initial-scale=1">
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/custom.css">
-    <script src="js/bootstrap.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap.js"></script>
 
     <title>title</title>
 </head>
 <body>
-<h1 th:text="${name}">junnnnn</h1>
 
+<h2 th:text="${huge.id}">huge.id</h2>
+<!--<th:block th:each="num: ${#numbers.sequence(1,5)}">
+<h2 th:text="${Huge.value}">huge.value</h2>
+
+</th:block>-->
 <nav class="navbar navbar-default">
     <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed"
@@ -26,7 +31,7 @@
 
 
 
-        <a class="navbar-brand" href="${pageContext.request.contextPath}/">실시간 회원제 채팅 서비스</a>
+        <a class="navbar-brand" href="/">실시간 회원제 채팅 서비스</a>
 
 
     </div>
@@ -45,7 +50,7 @@
 
 
 
-        <ul class ="nav navbar-nav navbar-right">
+        <ul th:if="${userID==null}"  class ="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle"
                    data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -53,6 +58,22 @@
                 <ul class="dropdown-menu">
                     <li><a href="${pageContext.request.contextPath}/login">로그인</a></li>
                     <li><a href="${pageContext.request.contextPath}/join">회원가입</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+
+        <ul th:unless="${userID==null}" class ="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle"
+                   data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false">회원관리<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="${pageContext.request.contextPath}/update">회원정보수정</a></li>
+                    <li><a href="${pageContext.request.contextPath}/profileUpdate">프로필 수정</a></li>
+                    <li><a href="${pageContext.request.contextPath}/logoutAction">로그아웃</a></li>
+
                 </ul>
             </li>
 

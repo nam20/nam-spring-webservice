@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.nam21.DB.DAO.UserDAO">
+
+    <select id="login" resultType="com.example.nam21.DB.DTO.UserDTO">
+        SELECT * FROM USER WHERE userID = #{userID}
+    </select>
+    <select id="getUser" resultType="com.example.nam21.DB.DTO.UserDTO">
+        SELECT * FROM USER WHERE userID = #{userID}
+    </select>
+    <select id="registerCheck" resultType="com.example.nam21.DB.DTO.UserDTO">
+        SELECT * FROM USER WHERE userID = #{userID}
+    </select>
+    <insert id="register" parameterType="hashmap">
+        INSERT INTO USER VALUES (#{userID},#{userPassword},#{userName},#{userAge},#{userGender},#{userEmail},#{userProfile})
+    </insert>
+    <update id="update" parameterType="hashmap">
+        UPDATE USER SET userPassword = #{userPassword}, userName = #{userName}, userAge = #{userAge}, userGender = #{userGender},
+        userEmail = #{userEmail} WHERE userID = #{userID}
+    </update>
+    <update id="profile" parameterType="hashmap">
+        UPDATE USER SET userProfile = #{userProfile} WHERE userID = #{userID}
+    </update>
+
+    <select id="getProfile" resultType="String">
+        SELECT userProfile FROM USER WHERE userID = #{userID}
+    </select>
+
+</mapper>
