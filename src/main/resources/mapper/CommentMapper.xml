@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.nam21.DB.DAO.CommentDAO">
+    <insert id="submit" parameterType="hashmap">
+        INSERT INTO COMMENT VALUES(#{userID}, #{boardID}, #{commentContent}, now(), IFNULL((SELECT MAX(commentID) + 1 FROM COMMENT c), 1))
+    </insert>
+    <select id="getCommentListByID" parameterType="hashmap" resultType="com.example.nam21.DB.DTO.CommentDTO">
+        SELECT * FROM COMMENT WHERE boardID = #{boardID} AND commentID > #{commentID} ORDER BY commentTime
+    </select>
+    <select id="getCommentLitByRecent"  parameterType="hashmap" resultType="com.example.nam21.DB.DTO.CommentDTO">
+        SELECT * FROM COMMENT WHERE boardID = #{boardID} AND commentID > #{commentID} ORDER BY commentTime
+    </select>
+    <select id="commentCount" resultType="int">
+        SELECT COUNT(boardID) FROM COMMENT WHERE boardID = #{boardID}
+    </select>
+
+</mapper>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.nam21.DB.DAO.BoardDAO">
+    <insert id="write" parameterType="hashmap">
+        INSERT INTO BOARD SELECT #{userID}, IFNULL((SELECT MAX(boardID) + 1 FROM BOARD), 1), #{boardTitle}, #{boardContent}, now(), 0, #{boardFile}, #{boardRealFile}, IFNULL((SELECT MAX(boardGroup) + 1 FROM BOARD), 0 ), 0, 0,1
+    </insert>
+    <select id="getBoard" resultType="com.example.nam21.DB.DTO.BoardDTO" parameterType="int">
+        SELECT * FROM BOARD WHERE boardID = #{boardID}
+    </select>
+    <select id="getList" resultType="com.example.nam21.DB.DTO.BoardDTO" parameterType="hashmap">
+        <![CDATA[  SELECT * FROM BOARD WHERE boardGroup > (SELECT MAX(boardGroup) FROM BOARD) - #{page1} AND boardGroup <= (SELECT MAX(boardGroup) FROM BOARD) - #{page2} ORDER BY boardGroup DESC, boardSequence ASC  ]]>
+    </select>
+    <update id="hit">
+        UPDATE BOARD SET boardHit = boardHit + 1 WHERE boardID = #{boardID}
+    </update>
+    <select id="getFile" resultType="String">
+        SELECT boardFile FROM BOARD WHERE boardID = #{boardID}
+    </select>
+    <select id="getRealFile" resultType="String">
+        SELECT boardRealFile FROM BOARD WHERE boardID = #{boardID}
+    </select>
+    <update id="update" parameterType="hashmap">
+        UPDATE BOARD SET boardTitle = #{boardTitle}, boardContent = #{boardContent}, boardFile = #{boardFile} , boardRealFile = #{boardRealFile} WHERE boardID = #{boardID}
+    </update>
+    <update id="delete">
+        UPDATE BOARD SET boardAvailable = 0  WHERE boardID = #{boardID}
+    </update>
+    <insert id="reply" parameterType="hashmap">
+        INSERT INTO BOARD SELECT #{userID}, IFNULL((SELECT MAX(boardID) + 1 FROM BOARD), 1), #{boardTitle}, #{boardContent}, now(), 0, #{boardFile}, #{boardRealFile}, #{parentBoardGroup}, #{parentBoardSequence}, #{parentBoardLevel},1
+    </insert>
+    <update id="replyUpdate" parameterType="hashmap">
+        <![CDATA[ UPDATE BOARD SET boardSequence = boardSequence + 1 WHERE boardGroup = #{parentBoardGroup} AND boardSequence > #{parentBoardSequence}  ]]>
+    </update>
+    <select id="nextPage" resultType="com.example.nam21.DB.DTO.BoardDTO">
+        <![CDATA[ SELECT * FROM BOARD WHERE boardGroup >= #{pageNum} ]]>
+    </select>
+    <select id="targetPage" resultType="int">
+        <![CDATA[ SELECT COUNT(boardGroup) FROM BOARD WHERE boardGroup > #{pageNum}  AND boardLevel = 0 ]]>
+    </select>
+    <select id="searchTargetPage" resultType="int">
+        <![CDATA[ SELECT COUNT(boardGroup) FROM BOARD WHERE boardTitle LIKE #{boardTitle}]]>
+    </select>
+
+    <select id="search" resultType="com.example.nam21.DB.DTO.BoardDTO">
+        SELECT * FROM BOARD WHERE boardTitle LIKE #{title} ORDER BY boardGroup DESC, boardSequence ASC
+    </select>
+</mapper>

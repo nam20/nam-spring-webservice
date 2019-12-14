@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.nam21.DB.DAO.ChatDAO">
+    <select id="getChatListByID" resultType="com.example.nam21.DB.DTO.ChatDTO" parameterType="hashmap">
+        <![CDATA[ SELECT * FROM CHAT WHERE ((fromID = #{fromID} AND toID = #{toID}) OR (fromID = #{toID} AND toID = #{fromID})) AND chatID > #{chatID} ORDER BY chatTime ]]>
+    </select>
+    <select id="getChatListByRecent" resultType="com.example.nam21.DB.DTO.ChatDTO" parameterType="hashmap">
+        <![CDATA[ SELECT * FROM CHAT WHERE ((fromID = #{fromID} AND toID = #{toID}) OR (fromID = #{toID} AND toID = #{fromID})) AND chatID > (SELECT MAX(chatID) - #{number} FROM CHAT WHERE (fromID = #{fromID} AND toID = #{toID}) OR (fromID = #{toID} AND toID = #{fromID})) ORDER BY chatTime ]]>
+    </select>
+    <select id="getBox" resultType="com.example.nam21.DB.DTO.ChatDTO">
+        SELECT * FROM CHAT WHERE chatID IN (SELECT MAX(chatID) FROM CHAT WHERE toID = #{userID} OR fromID = #{userID} GROUP BY fromID, toID)
+    </select>
+    <insert id="submit" parameterType="hashmap">
+        INSERT INTO CHAT VALUES(NULL, #{fromID}, #{toID}, #{chatContent}, NOW(), 0)
+    </insert>
+    <update id="readChat" parameterType="hashmap">
+        UPDATE CHAT SET chatRead = 1 WHERE (fromID = #{toID} AND toID = #{fromID})
+    </update>
+    <select id="getAllUnreadChat" resultType="int">
+        SELECT COUNT(chatID) FROM CHAT WHERE toID = #{userID} AND chatRead = 0
+    </select>
+    <select id="getUnreadChat" parameterType="hashmap" resultType="int">
+        SELECT COUNT(chatID) FROM CHAT WHERE fromID = #{fromID} AND toID = #{toID} AND chatRead = 0
+    </select>
+</mapper>
