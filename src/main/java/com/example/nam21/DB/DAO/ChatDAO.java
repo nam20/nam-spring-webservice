@@ -1,9 +1,12 @@
 package com.example.nam21.DB.DAO;
 
 import com.example.nam21.DB.DTO.ChatDTO;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 
 public interface ChatDAO {
 

@@ -8,35 +8,7 @@
 
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="js/bootstrap.js"></script>
-    <script type="text/javascript" th:inline="javascript">
-			function getUnread(){
 
-				$.ajax({
-					type: "POST",
-					url: "./chatUnread",
-					data: {
-						userID: encodeURIComponent([[${userID}]]),
-					},
-					success: function(result){
-						if(result >= 1){
-							showUnread(result);
-						}else{
-							showUnread('');
-						}
-					}
-				});
-			}
-
-			function getInfiniteUnread(){
-				setInterval (function(){
-					getUnread();
-				},4000);
-			}
-			function showUnread(result){
-				$('#unread').html(result);
-			}
-
-    </script>
 
     <title>title</title>
 </head>
@@ -75,7 +47,7 @@
 
 
 
-        <ul th:if="${userID==null}"  class ="nav navbar-nav navbar-right">
+        <ul  class ="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle"
                    data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -89,54 +61,49 @@
         </ul>
 
 
-        <ul th:unless="${userID==null}" class ="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle"
-                   data-toggle="dropdown" role="button" aria-haspopup="true"
-                   aria-expanded="false">회원관리<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/update">회원정보수정</a></li>
-                    <li><a href="/profileUpdate">프로필 수정</a></li>
-                    <li><a href="/logoutAction">로그아웃</a></li>
-
-                </ul>
-            </li>
-
-        </ul>
-
-
 
     </div>
 
 </nav>
 
-    <div class="container">
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                <li data-target="#myCarousel" data-slide-to="1"></li>
-                <li data-target="#myCarousel" data-slide-to="2"></li>
-            </ol>
-            <div class="carousel-inner">
-                <div class="item active">
-                    <img src="img/1.jpg">
-                </div>
-                <div class="item">
-                    <img src="img/2.jpg">
-                </div>
-                <div class="item">
-                    <img src="img/3.jpg">
-                </div>
-            </div>
-            <a class="left carousel-control" href="#myCarousel" data-slide="prev">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-            </a>
-            <a class="right carousel-control" href="#myCarousel" data-slide="next">
-                <span class="glyphicon glyphicon-chevron-right"></span>
-            </a>
-        </div>
 
-    </div>
+
+
+<div class="container">
+    <form method="post" action="${pageContext.request.contextPath}/userLogin">
+
+        <table class="table table=bordered table-hover" style="textalign:center; border: 1px solid #dddddd">
+            <thead>
+            <tr>
+                <th colspan="2"><h4>로그인 양식</h4>
+            </tr>
+
+            </thead>
+            <tbody>
+
+            <tr>
+                <td style="width:110px;"><h5>아이디</h5></td>
+                <td><input class="form-control" type="text" name="userID" maxlength="20" placeholder="아이디 입력"></td>
+            </tr>
+            <tr>
+                <td style="width:110px;"><h5>비밀번호</h5></td>
+                <td><input class="form-control" type="password" name="userPassword" maxlength="20" placeholder="비밀번호 입력"></td>
+            </tr>
+
+            <tr>
+                <td style="text-align:left;" colspan="2"><input class="btn btn-primary pull-right" type="submit" value="로그인"></td>
+            </tr>
+
+
+
+            </tbody>
+
+
+        </table>
+    </form>
+
+
+</div>
 
 
     <th:block th:if="${messageContent != null}">
@@ -164,26 +131,40 @@
         </div>
         </div>
 
-
-
-
-
         <script>
 			$('#messageModal').modal("show");
 		</script>
-
-
 
     </th:block>
 
 
 
-    <script th:if="${userID!=null}" type="text/javascript">
-				$(document).ready(function(){
-					getUnread();
-					getInfiniteUnread();
-				});
-			</script>
+        <div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="vertical-alignment-helper">
+                <div class="modal-dialog vertical-align-center">
+                    <div id="checkType" class="modal-content panel-info">
+                        <div class="modal-header panel-heading">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">
+                                확인 메시지
+                            </h4>
+                        </div>
+                        <div id="checkMessage" class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
 
 </body>
 </html>

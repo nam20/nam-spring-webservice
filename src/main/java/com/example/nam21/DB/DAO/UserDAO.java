@@ -1,6 +1,8 @@
 package com.example.nam21.DB.DAO;
 
 import com.example.nam21.DB.DTO.UserDTO;
+import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 
