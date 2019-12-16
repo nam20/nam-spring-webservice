@@ -5,12 +5,14 @@ import com.example.nam21.Service.ChatService;
 import com.example.nam21.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -189,21 +191,63 @@ public class ChatController {
     }
 
 
-    @GetMapping("/chat")
-    public ModelAndView chat(/* @PathVariable("toID") */ @RequestParam("toID") String toID, HttpServletRequest request, HttpSession session) {
-        request.setAttribute("toID", toID);
 
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.setViewName("chat");
 
-        String fromProfile = userService.getProfile((String) session.getAttribute("userID"));
-        String toProfile = userService.getProfile(toID);
 
-        modelAndView.addObject("fromProfile",fromProfile);
-        modelAndView.addObject("toProfile",toProfile);
 
-        return modelAndView;
-    }
+        @GetMapping("/chat")
+        public String chat(Model model, HttpSession session, HttpServletResponse response, @RequestParam("toID") String toID) throws IOException {
+
+            String userID = null;
+            if(session.getAttribute("userID") != null) {
+                userID = (String) session.getAttribute("userID");
+            }
+     /*   String toID= null;
+        if (request.getAttribute("toID") != null){
+            toID = (String) request.getAttribute("toID");
+        }
+       */
+
+            if(userID == null){
+                session.setAttribute("messageType", "오류 메시지");
+                session.setAttribute("messageContent","현재 로그인 안되어있는 상태");
+                response.sendRedirect("/");
+
+            }
+
+            if(toID == null){
+                session.setAttribute("messageType", "오류 메시지");
+                session.setAttribute("messageContent","대화 상대가 지정되지않음");
+                response.sendRedirect("/");
+
+            }
+
+            if(userID.equals(URLDecoder.decode(toID,"UTF-8"))){
+                session.setAttribute("messageType", "오류 메시지");
+                session.setAttribute("messageContent","자신에게 보낼 수 없음");
+                response.sendRedirect("/");
+
+            }
+
+
+            String fromProfile = userService.getProfile((String) session.getAttribute("userID"));
+            String toProfile = userService.getProfile(toID);
+
+           /* modelAndView.addObject("fromProfile",fromProfile);
+            modelAndView.addObject("toProfile",toProfile);*/
+
+            model.addAttribute("fromProfile",fromProfile);
+            model.addAttribute("toProfile",toProfile);
+
+
+            return "chat";
+        }
+
+
+
+
+
+
 
     @ResponseBody
     @PostMapping(value="/chatUnread")

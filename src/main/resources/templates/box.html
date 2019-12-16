@@ -10,7 +10,6 @@
     <script src="js/bootstrap.js"></script>
     <script type="text/javascript" th:inline="javascript">
 			function getUnread(){
-
 				$.ajax({
 					type: "POST",
 					url: "./chatUnread",
@@ -36,7 +35,54 @@
 				$('#unread').html(result);
 			}
 
-    </script>
+			function chatBoxFunction(){
+				var userID = /*[[${userID}]]*/
+				$.ajax({
+					type: "POST",
+					url: "./chatBox",
+					data: {
+						userID: encodeURIComponent(userID),
+					},
+					dataType: 'text',
+					success: function(data){
+						if(data == "") return;
+						$('#boxTable').html('');
+						var parsed = JSON.parse(data);
+						var result = parsed.result;
+						for(var i = 0; i<result.length; i++){
+							if(result[i][0].value == userID){
+								result[i][0].value = result[i][1].value;
+							}else{
+								result[i][1].value = result[i][0].value;
+							}
+							addBox(result[i][0].value, result[i][1].value, result[i][2].value, result[i][3].value, result[i][4].value,result[i][5].value);
+						}
+					}
+				});
+			}
+
+			function addBox(lastID, toID, chatContent, chatTime, unread, profile){
+				$('#boxTable').append('<tr onclick="location.href=\'chat?toID=' + encodeURIComponent(toID) + '\'">' +
+						'<td style="width: 150px;">' +
+						'<img class="media-object img-circle" style="margin:0 auto; max-width: 40px; max-height:40px;" src="' + profile + '">' +
+						'<h5>' + lastID + '</h5></td>' +
+						'<td>' +
+						'<h5>' + chatContent +
+						'<span class="label label-info">' + unread + '</span></h5>' +
+						'<div class="pull-right">' + chatTime + '</div>' +
+						'</td>' +
+						'</tr>');
+			}
+			function getInfiniteBox(){
+				setInterval(function(){
+					chatBoxFunction();
+				},3000);
+			}
+
+		</script>
+
+
+
 
     <title>title</title>
 </head>
@@ -64,8 +110,8 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
         <ul class="nav navbar-nav">
-            <li class="active"><a href="/">메인</a></li>
-            <li><a href="/find">친구찾기</a></li>
+            <li><a href="/">메인</a></li>
+            <li class="active"><a href="/find">친구찾기</a></li>
             <li><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
             <li><a href="/boardView">자유게시판</a></li>
 
@@ -75,21 +121,8 @@
 
 
 
-        <ul th:if="${userID==null}"  class ="nav navbar-nav navbar-right">
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle"
-                   data-toggle="dropdown" role="button" aria-haspopup="true"
-                   aria-expanded="false">접속하기<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="/login">로그인</a></li>
-                    <li><a href="/join">회원가입</a></li>
-                </ul>
-            </li>
 
-        </ul>
-
-
-        <ul th:unless="${userID==null}" class ="nav navbar-nav navbar-right">
+        <ul class ="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle"
                    data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -105,41 +138,31 @@
         </ul>
 
 
-
-    </div>
-
 </nav>
 
-    <div class="container">
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-                <li data-target="#myCarousel" data-slide-to="1"></li>
-                <li data-target="#myCarousel" data-slide-to="2"></li>
-            </ol>
-            <div class="carousel-inner">
-                <div class="item active">
-                    <img src="img/1.jpg">
+        <div class="container">
+            <table class="table" style="margin: 0 auto;">
+                <thead>
+                <tr>
+                    <th><h4>주고받은 메시지 목록</h4></th>
+                </tr>
+                </thead>
+                <div style="overflow-y:auto; width:100%; max-height:450px;">
+                    <table class="table table-bordered table-hover" style="text-align:center; border: 1px solid #dddddd; margin: 0 auto;">
+                        <tbody id="boxTable">
+                        </tbody>
+                    </table>
                 </div>
-                <div class="item">
-                    <img src="img/2.jpg">
-                </div>
-                <div class="item">
-                    <img src="img/3.jpg">
-                </div>
-            </div>
-            <a class="left carousel-control" href="#myCarousel" data-slide="prev">
-                <span class="glyphicon glyphicon-chevron-left"></span>
-            </a>
-            <a class="right carousel-control" href="#myCarousel" data-slide="next">
-                <span class="glyphicon glyphicon-chevron-right"></span>
-            </a>
+            </table>
         </div>
 
-    </div>
 
 
-    <th:block th:if="${messageContent != null}">
+
+
+
+
+   <!-- <th:block th:if="${messageContent != null}">
 
         <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="vertical-alignment-helper">
@@ -164,26 +187,48 @@
         </div>
         </div>
 
-
-
-
-
         <script>
 			$('#messageModal').modal("show");
 		</script>
 
-
-
-    </th:block>
+    </th:block>-->
 
 
 
-    <script th:if="${userID!=null}" type="text/javascript">
+        <div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="vertical-alignment-helper">
+                <div class="modal-dialog vertical-align-center">
+                    <div id="checkType" class="modal-content panel-info">
+                        <div class="modal-header panel-heading">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">
+                                확인 메시지
+                            </h4>
+                        </div>
+                        <div id="checkMessage" class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script th:if="${userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();
+					chatBoxFunction();
+					getInfiniteBox();
 				});
 	</script>
+
+
 
 </body>
 </html>
