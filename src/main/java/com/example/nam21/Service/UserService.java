@@ -113,14 +113,14 @@ public class UserService {
             String rs = userDAO.getProfile(userID);
             if(rs!=null) {
                 if(rs.equals("")) {
-                    return "./static/img/icon.png";
+                    return "./img/icon.png";
                 }
-                return "./static/upload/" + rs;
+                return "./upload/" + rs;
             }
         }catch(Exception e) {
             e.printStackTrace();
         }
 
-        return "./static/img/icon.png";
+        return "./img/icon.png";
     }
 }

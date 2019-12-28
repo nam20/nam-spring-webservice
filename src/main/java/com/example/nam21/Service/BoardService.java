@@ -198,7 +198,7 @@ public class BoardService {
 
 
         try {
-            int count = boardDAO.targetPage(pageNumber);
+            int count = boardDAO.targetPage(pageNum);
             if(count > 0) {
 
                 return count/10;
@@ -234,7 +234,7 @@ public class BoardService {
         String title = "%" + boardTitle + "%";
 
         try {
-            List<BoardDTO> board = boardDAO.search(boardTitle);
+            List<BoardDTO> board = boardDAO.search(title);
 
             Iterator<BoardDTO> iterator = board.iterator();
             while(iterator.hasNext()) {

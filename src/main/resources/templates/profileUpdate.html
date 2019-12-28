@@ -14,7 +14,7 @@
 					type: "POST",
 					url: "./chatUnread",
 					data: {
-						userID: encodeURIComponent(/*[[${userID}]]*/),
+						userID: encodeURIComponent(/*[[${session.userID}]]*/),
 					},
 					success: function(result){
 						if(result >= 1){
@@ -77,7 +77,7 @@
 
         <ul class="nav navbar-nav">
             <li><a href="/">메인</a></li>
-            <li class="active"><a href="/find">친구찾기</a></li>
+            <li ><a href="/find">친구찾기</a></li>
             <li><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
             <li><a href="/boardView">자유게시판</a></li>
 
@@ -95,7 +95,7 @@
                    aria-expanded="false">회원관리<span class="caret"></span></a>
                 <ul class="dropdown-menu">
                     <li><a href="/update">회원정보수정</a></li>
-                    <li><a href="/profileUpdate">프로필 수정</a></li>
+                    <li class="active"><a href="/profileUpdate">프로필 수정</a></li>
                     <li><a href="/logoutAction">로그아웃</a></li>
 
                 </ul>
@@ -117,9 +117,9 @@
             <tbody>
             <tr>
                 <td style="width:110px;"><h5>아이디</h5></td>
-                <td><h5 th:text="${userID}">
+                <td><h5 th:text="${session.userID}">
                   </h5>
-                    <input type="hidden" name="userID" th:value="${userID}"></td>
+                    <input type="hidden" name="userID" th:value="${session.userID}"></td>
             </tr>
             <tr>
                 <td style="width:110px;"><h5>사진 업로드</h5></td>
@@ -147,7 +147,7 @@
 </div>
 
 
-<script th:if="${userID!=null}" type="text/javascript">
+<script th:if="${session.userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();
@@ -166,21 +166,21 @@
 
 
 
-   <th:block th:if="${messageContent != null}">
+   <th:block th:if="${session.messageContent != null}">
 
         <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="vertical-alignment-helper">
                 <div class="modal-dialog vertical-align-center">
-                    <div class="modal-content" th:classappend="${messageType.equals('오류 메시지') ? 'panel-warning' : 'panel-success'}">
+                    <div class="modal-content" th:classappend="${session.messageType.equals('오류 메시지') ? 'panel-warning' : 'panel-success'}">
                     <div class="modal-header panel-heading">
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times</span>
                             <span class="sr-only">Close</span>
                         </button>
-                        <h4 th:text="${messageType}" class="modal-title">
+                        <h4 th:text="${session.messageType}" class="modal-title">
                         </h4>
                     </div>
-                    <div th:text="${messageContent}" class="modal-body">
+                    <div th:text="${session.messageContent}" class="modal-body">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
@@ -223,7 +223,7 @@
             </div>
         </div>
 
-<script th:if="${userID!=null}" type="text/javascript">
+<script th:if="${session.userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();

@@ -162,7 +162,7 @@ public class ChatController {
 
 
     @ResponseBody
-    @RequestMapping(method=RequestMethod.POST,value="/chatSubmit")
+    @PostMapping(value="/chatSubmit", produces="application/text;charset=utf-8")
     public String chatSubmit(HttpServletRequest request) throws UnsupportedEncodingException {
 
         String fromID = request.getParameter("fromID");
@@ -211,33 +211,41 @@ public class ChatController {
             if(userID == null){
                 session.setAttribute("messageType", "오류 메시지");
                 session.setAttribute("messageContent","현재 로그인 안되어있는 상태");
-                response.sendRedirect("/");
+                return "index";
+                //response.sendRedirect("/");
 
             }
 
             if(toID == null){
                 session.setAttribute("messageType", "오류 메시지");
                 session.setAttribute("messageContent","대화 상대가 지정되지않음");
-                response.sendRedirect("/");
+                return "index";
+                //response.sendRedirect("/");
 
             }
 
             if(userID.equals(URLDecoder.decode(toID,"UTF-8"))){
                 session.setAttribute("messageType", "오류 메시지");
                 session.setAttribute("messageContent","자신에게 보낼 수 없음");
-                response.sendRedirect("/");
+                return "index";
+               // response.sendRedirect("/");
 
             }
 
 
-            String fromProfile = userService.getProfile((String) session.getAttribute("userID"));
+            String fromProfile = userService.getProfile(userID);
             String toProfile = userService.getProfile(toID);
 
            /* modelAndView.addObject("fromProfile",fromProfile);
             modelAndView.addObject("toProfile",toProfile);*/
 
-            model.addAttribute("fromProfile",fromProfile);
-            model.addAttribute("toProfile",toProfile);
+
+           session.setAttribute("fromProfile",fromProfile);
+           session.setAttribute("toProfile",toProfile);
+           session.setAttribute("toID",toID);
+
+            /*model.addAttribute("fromProfile",fromProfile);
+            model.addAttribute("toProfile",toProfile);*/
 
 
             return "chat";

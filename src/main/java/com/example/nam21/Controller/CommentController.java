@@ -47,7 +47,7 @@ public class CommentController {
 
     }
 
-    public String getTen(String boardID, String commentID) {
+   /* public String getTen(String boardID, String commentID) {
         StringBuffer result = new StringBuffer("");
         result.append("{\"result\":[");
 
@@ -67,7 +67,7 @@ public class CommentController {
         result.append("], \"last\":\"" + commentList.get(commentList.size() - 1).getCommentID() + "\"}");
 
         return result.toString();
-    }
+    }*/
 
     public String getID(String boardID, String commentID) {
         StringBuffer result = new StringBuffer("");
@@ -101,7 +101,7 @@ public class CommentController {
 
 
     @ResponseBody
-    @RequestMapping(method= RequestMethod.POST,value="/CommentSubmit")
+    @PostMapping("/CommentSubmit")
     public String commentSubmit(HttpServletRequest request) throws UnsupportedEncodingException {
 
         String userID = request.getParameter("userID");
@@ -116,8 +116,8 @@ public class CommentController {
         else {
             userID= URLDecoder.decode(userID, "UTF-8");
             boardID= URLDecoder.decode(boardID, "UTF-8");
-
             commentContent = URLDecoder.decode(commentContent,"UTF-8");
+
             return commentService.submit(userID, boardID, commentContent)+"";
 
         }

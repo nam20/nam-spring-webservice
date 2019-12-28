@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/custom.css">
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+			function getUnread(){
+				$.ajax({
+					type: "POST",
+					url: "./chatUnread",
+					data: {
+						userID: encodeURIComponent(/*[[${session.userID}]]*/),
+					},
+					success: function(result){
+						if(result >= 1){
+							showUnread(result);
+						}else{
+							showUnread('');
+						}
+					}
+				});
+			}
+
+			function autoClosingAlert(selector, delay){
+				var alert = $(selector).alert();
+				alert.show();
+				window.setTimeout(function(){ alert.hide() }, delay);
+			}
+
+			function getInfiniteUnread(){
+				setInterval (function(){
+					getUnread();
+				},4000);
+			}
+			function showUnread(result){
+				$('#unread').html(result);
+			}
+
+
+
+			function boardComment(){
+				var userID = /*[[${session.userID}]]*/;
+				var boardID = /*[[${boardID}]]*/;
+				var commentContent = $('#commentContent').val();
+				$.ajax({
+					type: "POST",
+					url:"./CommentSubmit",
+					data: {
+						userID:encodeURIComponent(userID),
+						boardID:encodeURIComponent(boardID),
+						commentContent:encodeURIComponent(commentContent),
+
+					},
+					success: function(result){
+						if(result==1){
+							commentListFunction(lastID);
+							autoClosingAlert('#successMessage',2000);
+						}else if(result==0){
+							autoClosingAlert('#dangerMessage',2000);
+						}else{
+							autoClosingAlert('#warningMessage',2000);
+						}
+					}
+
+				});
+				$('#commentContent').val('');
+			}
+
+
+			var lastID = 0;
+			function commentListFunction(type){
+				var boardID = /*[[${boardID}]]*/;
+				$.ajax({
+					type: "POST",
+					url: "./CommentList",
+					data: {
+						boardID: encodeURIComponent(boardID),
+						listType: type
+					},
+					dataType: 'text',
+					success: function(data){
+						if(data ==""){
+
+							return ;
+
+						}
+						var parsed = JSON.parse(data);
+						var result = parsed.result;
+						for(var i = 0; i<result.length; i++){
+
+							addComment(result[i][0].value,result[i][2].value,result[i][3].value,result[i][4].value);
+						}
+						lastID = Number(parsed.last);
+					}
+				})
+			}
+
+
+
+			function addComment(userID, commentContent, commentTime,userProfile){
+				$('#commentList').append('<div class="row">' +
+						'<div class="col-lg-12">' +
+						'<div class="media">' +
+						'<a class="pull-left" href="#">' +
+						'<img class="media-pbject img-circle" style="width: 30px; height:30px;" src="' + userProfile + '" alt="">' +
+						'</a>' +
+						'<div class="media-body">' +
+						'<h4 style="text-align:left;"class="media-heading">' +
+						userID +
+						'<span class="small pull-right">' +
+						commentTime +
+						'</span>' +
+						'</h4>' +
+						'<p style="text-align:left;">' +
+						commentContent +
+						'</p>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'</div>' +
+						'<hr>');
+
+				$('#commentList').scrollTop($('#commentList')[0].scrollHeight);
+			}
+
+			commentListFunction('0');
+
+			(function(){
+				setInterval(function(){
+					commentListFunction(lastID);
+				},3000)
+			}());
+
+
+			//getInfiniteComment();
+
+			function showID(Id){
+                   obj = document.getElementById(Id);
+
+                   if(obj.style.display == "none"){
+                        $('#btnimg').text('닫기')
+                        $('#btnimg').css('backgroundColor', 'white');
+                        $('#btnimg').css('color', 'blue');
+                        $('#btnimg').css('border', 'white');
+                        obj.style.display = "inline";
+                   }else{
+                    $('#btnimg').text('보기')
+                    $('#btnimg').css('backgroundColor', '#337ab7');
+                    $('#btnimg').css('color', 'white');
+                    obj.style.display = "none";
+                   }
+			}
+		</script>
+
+
+
+
+
+    <title>title</title>
+</head>
+<body>
+
+
+    <nav class="navbar navbar-default">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+
+            </button>
+
+
+
+            <a class="navbar-brand" href="/">실시간 회원제 채팅 서비스</a>
+
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+            <ul class="nav navbar-nav">
+                <li><a href="/">메인</a></li>
+                <li><a href="/find">친구찾기</a></li>
+                <li><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
+                <li class="active"><a href="/boardView">자유게시판</a></li>
+
+
+
+            </ul>
+
+
+
+
+            <ul th:if="${session.userID==null}"  class ="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle"
+                       data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">접속하기<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/login">로그인</a></li>
+                        <li><a href="/join">회원가입</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+
+            <ul th:unless="${session.userID==null}" class ="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle"
+                       data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">회원관리<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/update">회원정보수정</a></li>
+                        <li><a href="/profileUpdate">프로필 수정</a></li>
+                        <li><a href="/logoutAction">로그아웃</a></li>
+
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+
+    </nav>
+
+
+    <div class="container" th:inline="text">
+        <table class="table table-bordered table-hover" style="text-align: center; border:1px solid #dddddd">
+            <thead>
+            <tr>
+                <th colspan="4"><h4>게시물 보기</h4></th>
+            </tr>
+            <tr>
+                <td style="background-color:#fafafa; color:#000000; width:80px;"><h5>제목</h5></td>
+                <td colspan="3"><h5>[[${board.getBoardTitle()}]]</h5></td>
+            </tr>
+            <tr>
+                <td style="background-color:#fafafa; color:#000000; width:80px;"><h5>작성자</h5></td>
+                <td colspan="3"><h5>[[${board.getUserID()}]]</h5></td>
+            </tr>
+            <tr>
+                <td style="background-color:#fafafa; color:#000000; width:80px;"><h5>작성날짜</h5></td>
+                <td><h5>[[${board.getBoardDate().substring(0,11)}]] [[${timeType}]] [[${writeTime}]] : [[${board.getBoardDate().substring(14,16)}]]</h5></td>
+                <td style="background-color:#fafafa; color:#000000; width:80px;"><h5>조회수</h5></td>
+                <td><h5>[[${board.getBoardHit() + 1}]]</h5></td>
+            </tr>
+            <tr style="height:350px;">
+                <td style="vertical-align:middle; min-height: 150px; background-color:#fafafa; color:#000000; width:80px;"><h5>글 내용</h5></td>
+                <td colspan="3" style="text-align: left; vertical-align:middle;"><h5>[[${board.getBoardContent()}]]</h5></td>
+            </tr>
+            <tr th:with="ext=${board.getBoardFile().substring(board.getBoardFile().lastIndexOf('.')+1)}">
+                <td style="vertical-align:middle; background-color:#fafafa; color:#000000; width:80px;"><h5>첨부파일</h5></td>
+
+
+                <td th:if="${board.getBoardFile() == null || board.getBoardFile().equals('')}" colspan="3"></td>
+
+
+
+                <td th:if="${ext.equalsIgnoreCase('jpg') || ext.equalsIgnoreCase('png') || ext.equalsIgnoreCase('gif')}"  th:unless="${board.getBoardFile() == null || board.getBoardFile().equals('')}" colspan="3"><button id="btnimg" class="btn btn-primary" onclick="showID('image');">보기</button><h5><a th:href="@{boardDownload(boardID=${board.getBoardID()})}"><img id="image" style="max-width:1000px; display:none;" th:src = "'http://localhost:18080/upload/' + ${board.getBoardRealFile()}">[[${board.getBoardFile()}]]</a></h5></td>
+                <td th:unless="${ext.equalsIgnoreCase('jpg') || ext.equalsIgnoreCase('png') || ext.equalsIgnoreCase('gif') || board.getBoardFile() == null || board.getBoardFile().equals('')}" colspan="3"><h5><a th:href="@{boardDownload(boardID=${board.getBoardID()})}">[[${board.getBoardFile()}]]</a></h5></td>
+
+
+            </tr>
+            </thead>
+            <tbody>
+
+
+            <tr>
+                <td colspan="5" style="text-align:right;">
+
+                    <a href="boardView" class="btn btn-primary">목록</a>
+
+                    <a th:if="${session.userID != null}" th:href="@{boardReply(boardID=${board.getBoardID()})}" class="btn btn-primary">답변</a>
+
+                    <th:block th:if="${session.userID == (board.getUserID())}">
+                    <a th:href="@{boardUpdate(boardID=${board.getBoardID()})}" class="btn btn-primary">수정</a>
+                    <a th:href="@{boardDelete(boardID=${board.getBoardID()})}" class="btn btn-primary" onclick="return confirm('삭제?')">삭제</a>
+                    </th:block>
+
+
+
+
+
+                </td>
+
+            </tr>
+            <tr>
+
+                <td colspan="5">
+
+                    <div style="border-color:white; margin-bottom:0;"class="portlet portlet-default">
+
+                        <div id="chat" class="panel-collapse collapse in">
+                            <div id="commentList" class="portlet-body chat-widget" style="overflow-y:auto; width:auto; max-height:600px;">
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </td>
+
+            </tr>
+            <tr >
+
+                <td colspan="5">
+                    <textarea rows="10" cols="60" id="commentContent" maxlength="2048"></textarea>
+                    <div style="text-align:right;"><button  onclick="boardComment();"class="btn btn-primary">등록</button></div>
+
+
+                </td>
+
+
+            </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="alert alert-success" id="successMessage" style="display: none;">
+        <strong>댓글 작성 성공</strong>
+    </div>
+    <div class="alert alert-danger" id="dangerMessage" style="display: none;">
+        <strong>모두 입력</strong>
+    </div>
+    <div class="alert alert-warnings" id="warningMessage" style="display: none;">
+        <strong>데이터베이스 오류</strong>
+    </div>
+
+
+
+
+
+
+
+
+
+
+   <th:block th:if="${session.messageContent != null}">
+
+        <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="vertical-alignment-helper">
+                <div class="modal-dialog vertical-align-center">
+                    <div class="modal-content" th:classappend="${session.messageType.equals('오류 메시지') ? 'panel-warning' : 'panel-success'}">
+                    <div class="modal-header panel-heading">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span aria-hidden="true">&times</span>
+                            <span class="sr-only">Close</span>
+                        </button>
+                        <h4 th:text="${session.messageType}" class="modal-title">
+                        </h4>
+                    </div>
+                    <div th:text="${session.messageContent}" class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <script>
+			$('#messageModal').modal("show");
+		</script>
+
+    </th:block>
+
+
+
+        <div class="modal fade" id="checkModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="vertical-alignment-helper">
+                <div class="modal-dialog vertical-align-center">
+                    <div id="checkType" class="modal-content panel-info">
+                        <div class="modal-header panel-heading">
+                            <button type="button" class="close" data-dismiss="modal">
+                                <span aria-hidden="true">&times</span>
+                                <span class="sr-only">Close</span>
+                            </button>
+                            <h4 class="modal-title">
+                                확인 메시지
+                            </h4>
+                        </div>
+                        <div id="checkMessage" class="modal-body">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script th:if="${session.userID!=null}" type="text/javascript">
+				$(document).ready(function(){
+					getUnread();
+					getInfiniteUnread();
+				});
+	</script>
+
+
+</body>
+</html>

@@ -18,4 +18,6 @@ public interface CommentDAO {
 
     public int commentCount(int boardID);
 
+
+
 }

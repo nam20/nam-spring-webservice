@@ -32,7 +32,7 @@ public interface BoardDAO {
 
     public BoardDTO/*boolean*/ nextPage(String pageNumber);
 
-    public int targetPage(String pageNumber);
+    public int targetPage(int pageNumber);
 
     public int searchTargetPage(/*String pageNumber,*/ String boardTitle);
 

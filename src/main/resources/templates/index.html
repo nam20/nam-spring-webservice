@@ -15,7 +15,7 @@
 					type: "POST",
 					url: "./chatUnread",
 					data: {
-						userID: encodeURIComponent(/*[[${userID}]]*/),
+						userID: encodeURIComponent(/*[[${session.userID}]]*/),
 					},
 					success: function(result){
 						if(result >= 1){
@@ -75,7 +75,7 @@
 
 
 
-        <ul th:if="${userID==null}"  class ="nav navbar-nav navbar-right">
+        <ul th:if="${session.userID==null}"  class ="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle"
                    data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -89,7 +89,7 @@
         </ul>
 
 
-        <ul th:unless="${userID==null}" class ="nav navbar-nav navbar-right">
+        <ul th:unless="${session.userID==null}" class ="nav navbar-nav navbar-right">
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle"
                    data-toggle="dropdown" role="button" aria-haspopup="true"
@@ -139,21 +139,21 @@
     </div>
 
 
-    <th:block th:if="${messageContent != null}">
+    <th:block th:if="${session.messageContent != null}">
 
         <div class="modal fade" id="messageModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="vertical-alignment-helper">
                 <div class="modal-dialog vertical-align-center">
-                    <div class="modal-content" th:classappend="${messageType.equals('오류 메시지') ? 'panel-warning' : 'panel-success'}">
+                    <div class="modal-content" th:classappend="${session.messageType.equals('오류 메시지') ? 'panel-warning' : 'panel-success'}">
                     <div class="modal-header panel-heading">
                         <button type="button" class="close" data-dismiss="modal">
                             <span aria-hidden="true">&times</span>
                             <span class="sr-only">Close</span>
                         </button>
-                        <h4 th:text="${messageType}" class="modal-title">
+                        <h4 th:text="${session.messageType}" class="modal-title">
                         </h4>
                     </div>
-                    <div th:text="${messageContent}" class="modal-body">
+                    <div th:text="${session.messageContent}" class="modal-body">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
@@ -178,7 +178,7 @@
 
 
 
-    <script th:if="${userID!=null}" type="text/javascript">
+    <script th:if="${session.userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();

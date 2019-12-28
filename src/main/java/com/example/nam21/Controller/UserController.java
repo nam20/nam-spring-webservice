@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.oreilly.servlet.MultipartRequest;
@@ -21,6 +22,11 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static jdk.nashorn.internal.objects.NativeRegExp.exec;
 
 @Controller
 public class UserController {
@@ -46,17 +52,20 @@ public class UserController {
         String userID = null;
         UserDTO user = null;
 
+
         if(session.getAttribute("userID") != null) {
+            //session.removeAttribute("user");
             userID = (String) session.getAttribute("userID");
-            userService.getUser((String)session.getAttribute("userID"));
+            user = userService.getUser((String)session.getAttribute("userID"));
+            session.setAttribute("user",user);
         }
-        String messageType = null;
+       /* String messageType = null;
         if(session.getAttribute("messageType") != null){
             messageType = (String) session.getAttribute("messageType");
         }
-        String messageContent = null;
+        String messageContent = null;*/
         if(session.getAttribute("messageContent") != null){
-            messageContent = (String) session.getAttribute("messageContent");
+         /*   messageContent = (String) session.getAttribute("messageContent");*/
 
             session.removeAttribute("messageContent");
             session.removeAttribute("messageType");
@@ -65,17 +74,13 @@ public class UserController {
         if(userID == null){
             session.setAttribute("messageType", "오류 메시지");
             session.setAttribute("messageContent","현재 로그인 안되어있는 상태");
-            try {
-                response.sendRedirect("/");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return "index";
         }
 
-        model.addAttribute("messageContent",messageContent);
+        /*model.addAttribute("messageContent",messageContent);
         model.addAttribute("messageType",messageType);
         model.addAttribute("userID",userID);
-        model.addAttribute("user",user);
+        model.addAttribute("user",user);*/
         return "update";
     }
 
@@ -87,13 +92,13 @@ public class UserController {
         if(session.getAttribute("userID") != null) {
             userID = (String) session.getAttribute("userID");
         }
-        String messageType = null;
+       /* String messageType = null;
         if(session.getAttribute("messageType") != null){
             messageType = (String) session.getAttribute("messageType");
         }
-        String messageContent = null;
+        String messageContent = null;*/
         if(session.getAttribute("messageContent") != null){
-            messageContent = (String) session.getAttribute("messageContent");
+          /*  messageContent = (String) session.getAttribute("messageContent");*/
 
             session.removeAttribute("messageContent");
             session.removeAttribute("messageType");
@@ -103,17 +108,13 @@ public class UserController {
         if(userID == null){
             session.setAttribute("messageType", "오류 메시지");
             session.setAttribute("messageContent","현재 로그인 안되어있는 상태");
-            try {
-                response.sendRedirect("/");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return "index";
 
         }
-       //String userID = user.getUserID();
-        model.addAttribute("messageContent",messageContent);
+
+       /* model.addAttribute("messageContent",messageContent);
         model.addAttribute("messageType",messageType);
-        model.addAttribute("userID",userID);
+        model.addAttribute("userID",userID);*/
         return "profileUpdate";
     }
 
@@ -160,6 +161,8 @@ public class UserController {
          * request.setCharacterEncoding("UTF-8");
          * response.setContentType("text/html;charset=UTF-8");
          */
+       Pattern pattern = Pattern.compile("([a-zA-Z0-9]{1,20})");
+
         String userID = request.getParameter("userID");
         String userPassword = request.getParameter("userPassword");
         if(userID == null || userID.equals("") ||userPassword == null || userPassword.equals("")) {
@@ -169,7 +172,17 @@ public class UserController {
              return "login";
 
 
-        }
+   }
+
+          Matcher matcher = pattern.matcher(userID);
+          Matcher matcher2 = pattern.matcher(userPassword);
+            if(!matcher.matches() || !matcher2.matches()){
+                request.getSession().setAttribute("messageType","오류 메시지");
+                request.getSession().setAttribute("messageContent","영,숫자 최대 20자 입력");
+                return "login";
+
+            }
+
             int result = userService.login(userID, userPassword);
             if (result == 1) {
                 request.getSession().setAttribute("userID", userID);
@@ -200,47 +213,51 @@ public class UserController {
     }
 
    @PostMapping("/userProfile")
-    public String userProfile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public String userProfile(HttpServletRequest request, HttpServletResponse response, @RequestParam("userProfile") MultipartFile mfile) throws IOException {
 
-        MultipartRequest multi = null;
-        int fileMaxSize = 10 * 1024 * 1024;
+        //MultipartRequest multi = null;
 
-        String savePath = request.getRealPath("/resources/static/upload").replaceAll("\\\\","/");
+
+        String savePath = "C:/projects/nam21/src/main/webapp/upload/";//request.getRealPath("/resources/static/upload").replaceAll("\\\\","/");
+       String random = UUID.randomUUID().toString().replaceAll("-", "");
+       File nfile = new File(savePath +  random.substring(20) +mfile.getOriginalFilename());
         try {
-            multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
+            if(!mfile.getOriginalFilename().equals(""))  mfile.transferTo(nfile);
+            //multi = new MultipartRequest(request, savePath, fileMaxSize, "UTF-8", new DefaultFileRenamePolicy());
         }catch (Exception e) {
             request.getSession().setAttribute("messageType","오류 메시지" );
             request.getSession().setAttribute("messageContent","10mb 이상 불가"+savePath );
-            response.sendRedirect("/profileUpdate");
+
             return "profileUpdate";
         }
-        String userID = multi.getParameter("userID");
+        String userID = request.getParameter("userID");
         HttpSession session = request.getSession();
 
         if(!userID.equals((String) session.getAttribute("userID"))) {
             session.setAttribute("messageType", "오류 메시지");
             session.setAttribute("messageContent","접근 불가");
-            response.sendRedirect("/");
+
             return "index";
         }
         String fileName="";
-        File file = (File) multi.getFile("userProfile");
-        if(file != null) {
-            String ext = file.getName().substring(file.getName().lastIndexOf(".")+1);
-            if(ext.equals("jpg") || ext.equals("png") || ext.equals("gif")) {
+
+        if(!mfile.getOriginalFilename().equals("")) {
+               // (File) multi.getFile("userProfile");
+            String ext = nfile.getName().substring(nfile.getName().lastIndexOf(".")+1);
+            if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("png") || ext.equalsIgnoreCase("gif")) {
                 String prev = userService.getUser(userID).getUserProfile();
-                File prevFile = new File (savePath + "/" + prev);
+                File prevFile = new File (savePath  + prev);
                 if(prevFile.exists()) {
                     prevFile.delete();
                 }
-                fileName = file.getName();
+                fileName = nfile.getName();
             }else {
-                if(file.exists()) {
-                    file.delete();
+                if(nfile.exists()) {
+                    nfile.delete();
                 }
                 session.setAttribute("messageType", "오류 메시지");
                 session.setAttribute("messageContent","이미지 파일만 업로드 가능");
-                response.sendRedirect("/profileUpdate");
+
                 return "profileUpdate";
 
             }
@@ -275,6 +292,9 @@ public class UserController {
         String userEmail = request.getParameter("userEmail");
         String userProfile = request.getParameter("userProfile");
 
+
+
+
         if(userID ==null || userID.equals("") || userPassword1 ==null || userPassword1.equals("") ||
                 userPassword2 ==null || userPassword2.equals("") ||
                 userName ==null || userName.equals("") ||
@@ -286,6 +306,19 @@ public class UserController {
             //response.sendRedirect("/join");
             return "join";
         }
+
+
+        Pattern pattern = Pattern.compile("([a-zA-Z0-9]{1,20})");
+
+        Matcher matcher = pattern.matcher(userID);
+        Matcher matcher2 = pattern.matcher(userPassword1);
+        if(!matcher.matches() || !matcher2.matches()){
+            request.getSession().setAttribute("messageType","오류 메시지");
+            request.getSession().setAttribute("messageContent","영,숫자 최대 20자 입력");
+            return "join";
+
+        }
+
 
         if(!userPassword1.equals(userPassword2)) {
             request.getSession().setAttribute("messageType","오류 메시지" );
@@ -337,21 +370,21 @@ public class UserController {
                 userEmail ==null || userEmail.equals("")) {
             request.getSession().setAttribute("messageType","오류 메시지" );
             request.getSession().setAttribute("messageContent","모든 내용을 입력하세요." );
-            response.sendRedirect("/update");
+            //response.sendRedirect("/update");
             return "update";
         }
 
         if(!userID.equals((String) session.getAttribute("userID"))) {
             session.setAttribute("messageType", "오류 메시지");
             session.setAttribute("messageContent","접근 불가");
-            response.sendRedirect("/");
+            //response.sendRedirect("/");
             return "index";
         }
 
         if(!userPassword1.equals(userPassword2)) {
             request.getSession().setAttribute("messageType","오류 메시지" );
             request.getSession().setAttribute("messageContent","비밀번호가 서로 다릅니다." );
-            response.sendRedirect("/update");
+            //response.sendRedirect("/update");
             return "update";
         }
 
@@ -362,13 +395,13 @@ public class UserController {
             request.getSession().setAttribute("userID", userID);
             request.getSession().setAttribute("messageType","성공 메시지" );
             request.getSession().setAttribute("messageContent","회원정보 수정 성공." );
-            response.sendRedirect("/");
+            //response.sendRedirect("/");
             return "index";
         }
         else {
             request.getSession().setAttribute("messageType","오류 메시지" );
             request.getSession().setAttribute("messageContent","데이터베이스 오류.");
-            response.sendRedirect("/update");
+            //response.sendRedirect("/update");
             return "update";
 
         }

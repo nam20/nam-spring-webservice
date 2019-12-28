@@ -14,7 +14,7 @@
 					type: "POST",
 					url: "./chatUnread",
 					data: {
-						userID: encodeURIComponent(/*[[${userID}]]*/),
+						userID: encodeURIComponent(/*[[${session.userID}]]*/),
 					},
 					success: function(result){
 						if(result >= 1){
@@ -36,7 +36,7 @@
 			}
 
 			function chatBoxFunction(){
-				var userID = /*[[${userID}]]*/
+				var userID = /*[[${session.userID}]]*/
 				$.ajax({
 					type: "POST",
 					url: "./chatBox",
@@ -111,8 +111,8 @@
 
         <ul class="nav navbar-nav">
             <li><a href="/">메인</a></li>
-            <li class="active"><a href="/find">친구찾기</a></li>
-            <li><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
+            <li><a href="/find">친구찾기</a></li>
+            <li class="active"><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
             <li><a href="/boardView">자유게시판</a></li>
 
 
@@ -219,7 +219,7 @@
             </div>
         </div>
 
-<script th:if="${userID!=null}" type="text/javascript">
+<script th:if="${session.userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();

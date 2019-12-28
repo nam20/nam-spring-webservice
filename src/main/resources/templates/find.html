@@ -61,7 +61,7 @@
 					type: "POST",
 					url: "./chatUnread",
 					data: {
-						userID: encodeURIComponent(/*[[${userID}]]*/),
+						userID: encodeURIComponent(/*[[${session.userID}]]*/),
 					},
 					success: function(result){
 						if(result >= 1){
@@ -235,7 +235,7 @@
             </div>
         </div>
 
-<script th:if="${userID!=null}" type="text/javascript">
+<script th:if="${session.userID!=null}" type="text/javascript">
 				$(document).ready(function(){
 					getUnread();
 					getInfiniteUnread();

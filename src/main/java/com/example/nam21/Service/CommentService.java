@@ -48,7 +48,7 @@ public class CommentService {
 
             while(iterator.hasNext()) {
                 CommentDTO commentDto = iterator.next();
-                commentDto.setCommentContent(commentDto.getCommentContent().replaceAll(" ", "&nbsp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>"));
+                commentDto.setCommentContent(commentDto.getCommentContent().replaceAll(" ", "&nbsp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll("\n", "<br>").replaceAll("\"","&quot;"));
                 int commentTime = Integer.parseInt(commentDto.getCommentTime().substring(11,13));
                 String timeType = "오전";
                 if(commentTime >= 12) {
@@ -113,4 +113,10 @@ public class CommentService {
 
         return -1;
     }
+
+
+
+
+
+
 }

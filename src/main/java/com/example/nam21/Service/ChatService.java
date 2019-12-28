@@ -156,7 +156,7 @@ public class ChatService {
         map.put("toID",toID);
 
         try {
-            return chatDAO.submit(map);
+            return chatDAO.readChat(map);
         }catch(Exception e) {
             e.printStackTrace();
         }

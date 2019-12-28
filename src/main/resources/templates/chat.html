@@ -8,7 +8,7 @@
 
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="js/bootstrap.js"></script>
-    <script type="text/javascript" th:inline="javascript">
+    <script type="text/javascript">
 
 			function autoClosingAlert(selector, delay){
 				var alert = $(selector).alert();
@@ -17,12 +17,12 @@
 			}
 
 			function submitFunction(){
-				var fromID = /*[[${userID}]]*/;
-				var toID = /*[[${toID}]]*/;
+				var fromID = [[${session.userID}]];
+				var toID = [[${session.toID}]];
 				var chatContent = $('#chatContent').val();
 				$.ajax({
 					type: "POST",
-					url:"./chatSubmit",
+					url:'./chatSubmit',
 					data: {
 						fromID:encodeURIComponent(fromID),
 						toID:encodeURIComponent(toID),
@@ -46,8 +46,8 @@
 
 			var lastID = 0;
 			function chatListFunction(type){
-				var fromID = /*[[${userID}]]*/;
-				var toID = /*[[${toID}]]*/;
+				var fromID = [[${session.userID}]];
+				var toID = [[${session.toID}]];
 				$.ajax({
 					type: "POST",
 					url: "./chatList",
@@ -82,7 +82,7 @@
 				'<div class="col-lg-12">' +
 				'<div class="media">' +
 				'<a class="pull-left" href="#">' +
-				'<img class="media-pbject img-circle" style="width: 30px; height:30px;" src="${fromProfile}" alt="">' +
+				'<img class="media-pbject img-circle" style="width: 30px; height:30px;" src="[[${session.fromProfile}]]" alt="">' +
 				'</a>' +
 				'<div class="media-body">' +
 				'<h4 class="media-heading">' +
@@ -106,7 +106,7 @@
 						'<div class="col-lg-12">' +
 						'<div class="media">' +
 						'<a class="pull-left" href="#">' +
-						'<img class="media-pbject img-circle" style="width: 30px; height:30px;" src="${toProfile}" alt="">' +
+						'<img class="media-pbject img-circle" style="width: 30px; height:30px;" src="[[${session.toProfile}]]" alt="">' +
 						'</a>' +
 						'<div class="media-body">' +
 						'<h4 class="media-heading">' +
@@ -139,7 +139,7 @@
 					type: "POST",
 					url: "./chatUnread",
 					data: {
-						userID: encodeURIComponent(/*[[${userID}]]*/),
+						userID: encodeURIComponent([[${userID}]]),
 					},
 					success: function(result){
 						if(result >= 1){
@@ -192,7 +192,7 @@
 
         <ul class="nav navbar-nav">
             <li><a href="/">메인</a></li>
-            <li class="active"><a href="/find">친구찾기</a></li>
+            <li><a href="/find">친구찾기</a></li>
             <li><a href="/box">메시지함<span id="unread" class="label label-info"></span></a></li>
             <li><a href="/boardView">자유게시판</a></li>
 
