@@ -26,7 +26,7 @@ public class BoardController {
 
     @Autowired
     BoardService boardService;
-
+        //test
     @Autowired
     UserService userService;
 
